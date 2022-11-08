@@ -1,8 +1,7 @@
 import "package:flutter/material.dart";
 
 class CardTransactions extends StatelessWidget {
-
-  final  String value;
+  final String value;
   final String title;
   final String date;
 
@@ -12,7 +11,6 @@ class CardTransactions extends StatelessWidget {
     required this.title,
     required this.date,
   });
-
 
   @override
   Widget build(BuildContext context) {
@@ -27,18 +25,13 @@ class CardTransactions extends StatelessWidget {
             ),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-                border: Border.all(
-                    color: Colors.purple,
-                    width: 2
-                )
-            ),
+                border: Border.all(color: Colors.purple, width: 2)),
             child: Text(
               "R\$ $value",
               style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
-                  color: Colors.purple
-              ),
+                  color: Colors.purple),
             ),
           ),
           Column(
@@ -46,17 +39,10 @@ class CardTransactions extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold
-                ),
+                //acessando o theme
+                style: Theme.of(context).textTheme.titleMedium,
               ),
-              Text(
-                  date,
-                  style: const TextStyle(
-                      color: Colors.grey
-                  )
-              )
+              Text(date, style: const TextStyle(color: Colors.grey))
             ],
           )
         ],

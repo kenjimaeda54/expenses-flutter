@@ -1,13 +1,22 @@
 import "package:flutter/material.dart";
 
-class TransactionsForm extends StatelessWidget {
+//quadno o text field nao conseguir persistir o formulario quando inserido o valor
+//e porque precisa ser um tipo statefull
+class TransactionsForm extends StatefulWidget {
+  const TransactionsForm(this.handleSubmit, {super.key});
+  final void Function({required String title,required String value}) handleSubmit;
+
+  @override
+  State<TransactionsForm> createState() => _TransactionsFormState();
+}
+
+//quando e um compoennte do tipo de StatefulWidget
+//recebo os parametros aqui no state por heranca no widget
+class _TransactionsFormState extends State<TransactionsForm> {
   //Vars
   final titleController = TextEditingController();
+
   final valueController = TextEditingController();
-
-  final void Function({required String title,required String value}) hanldeSubmit;
-
-  TransactionsForm(this.hanldeSubmit, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +25,16 @@ class TransactionsForm extends StatelessWidget {
         children:  [
           TextField(
             controller: titleController,
+            //o widget tera acesso a todos parametros recebidos nessa classe
+            onSubmitted: (_)=> widget.handleSubmit(title: titleController.text,value: valueController.text),
             decoration: const InputDecoration(
                 labelText: "Title"
             ),
           ),
           TextField(
             controller: valueController,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onSubmitted: (_)=> widget.handleSubmit(title: titleController.text,value: valueController.text),
             decoration: const InputDecoration(
               labelText: "Value (R\$)",
             ),
@@ -30,7 +43,7 @@ class TransactionsForm extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
-                  onPressed: ()=> hanldeSubmit(title: titleController.text,value:  valueController.text),
+                  onPressed: ()=> widget.handleSubmit(title: titleController.text,value:  valueController.text),
                   child: const Text(
                     "New transactions",
                     style: TextStyle(
