@@ -1,3 +1,4 @@
+import 'package:expenses/components/card-graphic.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import "package:intl/intl.dart";
@@ -48,17 +49,22 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _transactions = [
+  final List<Transaction> _transactions = [
     Transaction(
-        id: "t1",
-        title: "New running shoes",
-        value: 310.76,
-        date: DateTime.now()),
+        id: "3",
+        title: "agaua",
+        value: 3203,
+        date: DateTime.now().subtract(Duration(days: 3))),
     Transaction(
-        id: "t2",
-        title: "Electricity bill",
-        value: 211.30,
-        date: DateTime.now()),
+        id: "2",
+        title: "feijao",
+        value: 323,
+        date: DateTime.now().subtract(Duration(days: 13))),
+    Transaction(
+        id: "3",
+        title: "carne",
+        value: 13,
+        date: DateTime.now().subtract(Duration(days: 1))),
   ];
 
   //setState() or markNeedsBuild called during build
@@ -88,9 +94,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   _handleOpenModal(BuildContext context) {
+    //criando modal
     showModalBottomSheet(
         context: context,
         builder: (_) => TransactionsForm(_handleAddTransactions));
+  }
+
+  //criando um getter para pegar as trnasicoes recentes
+  List<Transaction> get _recentTransactions {
+    return _transactions
+        .where((it) =>
+            //ele vai retornar true se esta dentro dos sete dias
+            //ou seja maior que 7  ira dar false
+            //precisamos fazer isso para comparar datas
+            it.date.isAfter(DateTime.now().subtract(const Duration(days: 7))))
+        .toList();
   }
 
   @override
@@ -120,24 +138,46 @@ class _HomeScreenState extends State<HomeScreen> {
           // ao maximo o filho
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(
-              child: Card(
-                elevation: 5,
-                color: Colors.blue,
-                child: Text("Graphic"),
-              ),
+            SizedBox(
+              child: CardGraphic(_recentTransactions),
             ),
             SizedBox(
               height: 300,
-              child: ListView.builder(
-                  itemCount: _transactions.length,
-                  itemBuilder: (ctx, index) {
-                    final it = _transactions[index];
-                    return CardTransactions(
-                        value: it.value.toStringAsFixed(2),
-                        title: it.title,
-                        date: DateFormat("d MMM y").format(it.date));
-                  }),
+              //repara que o ternario fica apos o child pois ele espera um filho
+              //nao dentro do list view,pois list view ira usar o transactions
+              child: _transactions.isEmpty
+                  ? Column(
+                      children: [
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "Nenhuma transação até o momento",
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        SizedBox(
+                          height: 220,
+                          child: //o contain precisa saber o tamanho do container
+                              //se a imagem for maior que o container pai ir gerar overlow
+                              Image.asset(
+                            "assets/images/waiting.png",
+                            fit: BoxFit.contain,
+                          ),
+                        )
+                      ],
+                    )
+                  : ListView.builder(
+                      itemCount: _transactions.length,
+                      itemBuilder: (ctx, index) {
+                        final it = _transactions[index];
+                        return CardTransactions(
+                            value: it.value.toStringAsFixed(2),
+                            title: it.title,
+                            date: DateFormat("d MMM y").format(it.date));
+                      }),
             ),
           ],
         ),
