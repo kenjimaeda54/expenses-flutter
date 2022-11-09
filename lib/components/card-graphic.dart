@@ -1,3 +1,4 @@
+import 'package:expenses/components/card-graphic-bar.dart';
 import 'package:intl/intl.dart';
 import "../models/transaction.dart";
 import 'package:flutter/material.dart';
@@ -40,10 +41,15 @@ class CardGraphic extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    groupTransactions;
     return Card(
+      elevation: 5,
       child: Row(
-        children: [],
+        children: groupTransactions
+            .map((it) => CardGraphicBar(
+                percentage: 0.0,
+                value: (it["value"] as double).toStringAsFixed(2),
+                label: it["day"] as String))
+            .toList(),
       ),
     );
   }
