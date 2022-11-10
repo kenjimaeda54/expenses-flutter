@@ -46,7 +46,7 @@ class CardGraphic extends StatelessWidget {
       child: Row(
         children: groupTransactions
             .map((it) => CardGraphicBar(
-                percentage: 0.0,
+                percentage: 0.30,
                 value: (it["value"] as double).toStringAsFixed(2),
                 label: it["day"] as String))
             .toList(),

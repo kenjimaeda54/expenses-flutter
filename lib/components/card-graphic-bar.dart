@@ -20,10 +20,33 @@ class CardGraphicBar extends StatelessWidget {
       children: [
         Text("R\$$value"),
         const SizedBox(height: 5),
-        Container(
+        SizedBox(
           height: 60,
-          width: 5,
-          child: null,
+          width: 10,
+          //sobrepopr um elemento em cima do outro
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1,
+                      style: BorderStyle.solid,
+                    ),
+                    color: const Color.fromRGBO(220, 220, 200, 1),
+                    borderRadius: BorderRadius.circular(5)),
+              ),
+              FractionallySizedBox(
+                heightFactor: percentage,
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(5)),
+                ),
+              )
+            ],
+          ),
         ),
         const SizedBox(height: 5),
         Text(label)

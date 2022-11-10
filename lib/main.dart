@@ -139,6 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
+              width: double.infinity,
               child: CardGraphic(_recentTransactions),
             ),
             SizedBox(
