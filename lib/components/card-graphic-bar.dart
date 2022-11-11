@@ -18,7 +18,18 @@ class CardGraphicBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text("R\$$value"),
+        //com esse tamanho garonto que o texto havera uma alterara fixa e nao mais conforme
+        //container
+        SizedBox(
+          height: 13,
+          child: FittedBox(
+            //para que o texto diinua para caber dentor do container
+            child: Text(
+              "\$$value",
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+            ),
+          ),
+        ),
         const SizedBox(height: 5),
         SizedBox(
           height: 60,
@@ -29,20 +40,18 @@ class CardGraphicBar extends StatelessWidget {
             children: [
               Container(
                 decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 1,
-                      style: BorderStyle.solid,
-                    ),
-                    color: const Color.fromRGBO(220, 220, 200, 1),
-                    borderRadius: BorderRadius.circular(5)),
+                  border: Border.all(
+                      color: Colors.grey, width: 1, style: BorderStyle.solid),
+                  borderRadius: BorderRadius.circular(5),
+                ),
               ),
               FractionallySizedBox(
-                heightFactor: percentage,
+                heightFactor: percentage ?? 0,
                 child: Container(
                   decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      borderRadius: BorderRadius.circular(5)),
+                    borderRadius: BorderRadius.circular(5),
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
               )
             ],

@@ -10,9 +10,8 @@ class CardGraphic extends StatelessWidget {
 
   //lembrando que getter e como se fosse uma funcao precisa ser acionado o groupTransacitons para retornar os valores
   List<Map<String, Object>> get groupTransactions {
-    var sumValueTransactions = 0.0;
-
     return List.generate(7, (index) {
+      var sumValueTransactions = 0.0;
       //vamos subtrari conforme o index que esta sendo gerado pela lista
       //e identico pegar o dia de hoje substrair -1 , -2
       final weekDays = DateTime.now().subtract(Duration(days: index));
@@ -36,7 +35,13 @@ class CardGraphic extends StatelessWidget {
         "day": DateFormat.E().format(weekDays)[0],
         "value": sumValueTransactions
       };
-    });
+    }).reversed.toList();
+  }
+
+  double get _wekTotalValue {
+    //fold e identico ao reduce
+    return groupTransactions.fold(
+        0.0, (previousValue, it) => previousValue + (it["value"] as double));
   }
 
   @override
@@ -44,12 +49,25 @@ class CardGraphic extends StatelessWidget {
     return Card(
       elevation: 5,
       child: Row(
-        children: groupTransactions
-            .map((it) => CardGraphicBar(
-                percentage: 0.30,
-                value: (it["value"] as double).toStringAsFixed(2),
-                label: it["day"] as String))
-            .toList(),
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: groupTransactions.map((it) {
+          //se for usar flexibele o pai e o proprio flex
+          //https://www.fluttercampus.com/guide/229/incorrect-use-of-parentdatawidget-error/
+
+          //no andorid tem a opcao swap parent
+          return Flexible(
+            fit: FlexFit.tight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+              child: CardGraphicBar(
+                  percentage: it["value"] as double > 0.0
+                      ? (it["value"] as double) / _wekTotalValue
+                      : 0,
+                  value: (it["value"] as double).toStringAsFixed(2),
+                  label: it["day"] as String),
+            ),
+          );
+        }).toList(),
       ),
     );
   }

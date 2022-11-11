@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import 'package:intl/intl.dart';
 
 class CardTransactions extends StatelessWidget {
   final String value;
@@ -16,36 +17,28 @@ class CardTransactions extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 5,
-      child: Row(
-        children: [
-          Container(
-            margin: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.purple, width: 2)),
-            child: Text(
-              "R\$ $value",
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.purple),
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+      child: ListTile(
+        leading: CircleAvatar(
+          //quem vai determinar o tamnho do circulo e o radius
+          radius: 40,
+          backgroundColor: Theme.of(context).primaryColor,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 10),
+            child: FittedBox(
+              child: Text(
+                "\$$value",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                //acessando o theme
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Text(date, style: const TextStyle(color: Colors.grey))
-            ],
-          )
-        ],
+        ),
+        title: Text(title),
+        subtitle: Text(date),
       ),
     );
   }

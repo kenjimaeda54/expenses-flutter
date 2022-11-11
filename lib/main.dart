@@ -23,10 +23,11 @@ class ExpensesApp extends StatelessWidget {
           primarySwatch: Colors.purple,
           fontFamily: "Quicksand",
           textTheme: ThemeData.light().textTheme.copyWith(
-                  titleMedium: const TextStyle(
-                fontFamily: 'OpenSans',
-                fontSize: 19,
-              )),
+                titleMedium: const TextStyle(
+                  fontFamily: 'OpenSans',
+                  fontSize: 19,
+                ),
+              ),
           appBarTheme: const AppBarTheme(
               titleTextStyle: TextStyle(
             fontFamily: 'OpenSans',
@@ -49,23 +50,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Transaction> _transactions = [
-    Transaction(
-        id: "3",
-        title: "agaua",
-        value: 3203,
-        date: DateTime.now().subtract(Duration(days: 3))),
-    Transaction(
-        id: "2",
-        title: "feijao",
-        value: 323,
-        date: DateTime.now().subtract(Duration(days: 13))),
-    Transaction(
-        id: "3",
-        title: "carne",
-        value: 13,
-        date: DateTime.now().subtract(Duration(days: 1))),
-  ];
+  final List<Transaction> _transactions = [];
 
   //setState() or markNeedsBuild called during build
   //se acontecer isso de uma olhada se o botao nao esta chamando uma funcao
@@ -73,10 +58,11 @@ class _HomeScreenState extends State<HomeScreen> {
   //() => funcao()
   //se estiver assim pode dar erro
   //  funcao()
-  void _handleAddTransactions({required String title, required String value}) {
+  void _handleAddTransactions(
+      {required String title, required String value, DateTime? dateTime}) {
     final valueFormated = double.tryParse(value) ?? 0;
 
-    if (title.isEmpty || valueFormated <= 0) {
+    if (title.isEmpty || valueFormated <= 0 || dateTime == null) {
       return;
     }
 
@@ -84,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
         id: Random().nextDouble().toString(),
         title: title,
         value: valueFormated,
-        date: DateTime.now());
+        date: dateTime);
 
     setState(() {
       _transactions.add(newTransactions);
