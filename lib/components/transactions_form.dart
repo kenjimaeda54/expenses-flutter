@@ -57,7 +57,9 @@ class _TransactionsFormState extends State<TransactionsForm> {
             controller: valueController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onSubmitted: (_) => widget.handleSubmit(
-                title: titleController.text, value: valueController.text),
+                title: titleController.text,
+                value: valueController.text,
+                dateTime: dateSelected),
             decoration: const InputDecoration(
               labelText: "Value (R\$)",
             ),
@@ -88,7 +90,9 @@ class _TransactionsFormState extends State<TransactionsForm> {
                       backgroundColor:
                           MaterialStateProperty.all(Colors.purple)),
                   onPressed: () => widget.handleSubmit(
-                      title: titleController.text, value: valueController.text),
+                      title: titleController.text,
+                      value: valueController.text,
+                      dateTime: dateSelected),
                   child: const Text(
                     "New transactions",
                     style: TextStyle(color: Colors.white),

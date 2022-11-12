@@ -51,6 +51,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List<Transaction> _transactions = [];
+  bool showGraphic = false;
 
   //setState() or markNeedsBuild called during build
   //se acontecer isso de uma olhada se o botao nao esta chamando uma funcao
@@ -97,20 +98,48 @@ class _HomeScreenState extends State<HomeScreen> {
         .toList();
   }
 
+  _removeTransaction(String id) {
+    setState(() {
+      _transactions.removeWhere((it) => it.id == id);
+    });
+  }
+
+  _renderGraphicOrList(bool value) {
+    setState(() {
+      showGraphic = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final appBar = AppBar(
+      title: const Text("Personal expenses"),
+      actions: [
+        Row(
+          children: [
+            Text(showGraphic ? "Grapich" : "List"),
+            Switch(
+              value: showGraphic,
+              onChanged: _renderGraphicOrList,
+            ),
+          ],
+        ),
+        IconButton(
+            onPressed: () => _handleOpenModal(context),
+            icon: const Icon(
+              Icons.add,
+              size: 20,
+            ))
+      ],
+    );
+
+    //altura disponivel total  - padding acima que o status bar - tamanho do app bar
+    final avaibleHeigth = MediaQuery.of(context).size.height -
+        MediaQuery.of(context).padding.top -
+        appBar.preferredSize.height;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Personal expenses"),
-        actions: [
-          IconButton(
-              onPressed: () => _handleOpenModal(context),
-              icon: const Icon(
-                Icons.add,
-                size: 20,
-              ))
-        ],
-      ),
+      appBar: appBar,
       //este compoenente se estiver fora do Scaffold ira precisar de uma altera definada
       //se nao ira acusar overflow
 
@@ -124,48 +153,56 @@ class _HomeScreenState extends State<HomeScreen> {
           // ao maximo o filho
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(
-              width: double.infinity,
-              child: CardGraphic(_recentTransactions),
-            ),
-            SizedBox(
-              height: 300,
-              //repara que o ternario fica apos o child pois ele espera um filho
-              //nao dentro do list view,pois list view ira usar o transactions
-              child: _transactions.isEmpty
-                  ? Column(
-                      children: [
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "Nenhuma transação até o momento",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        SizedBox(
-                          height: 220,
-                          child: //o contain precisa saber o tamanho do container
-                              //se a imagem for maior que o container pai ir gerar overlow
-                              Image.asset(
-                            "assets/images/waiting.png",
-                            fit: BoxFit.contain,
+            showGraphic
+                ? SizedBox(
+                    width: double.infinity,
+                    child: SizedBox(
+                        height: avaibleHeigth * 0.25,
+                        child: CardGraphic(_recentTransactions)),
+                  )
+                : SizedBox(
+                    //repara que o ternario fica apos o child pois ele espera um filho
+                    //nao dentro do list view,pois list view ira usar o transactions
+                    child: _transactions.isEmpty
+                        ? Column(
+                            children: [
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Text(
+                                "Nenhuma transação até o momento",
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              SizedBox(
+                                height: 220,
+                                child: //o contain precisa saber o tamanho do container
+                                    //se a imagem for maior que o container pai ir gerar overlow
+                                    Image.asset(
+                                  "assets/images/waiting.png",
+                                  fit: BoxFit.contain,
+                                ),
+                              )
+                            ],
+                          )
+                        : SizedBox(
+                            height: avaibleHeigth * 0.75,
+                            child: ListView.builder(
+                                itemCount: _transactions.length,
+                                itemBuilder: (ctx, index) {
+                                  final it = _transactions[index];
+                                  return CardTransactions(
+                                      value: it.value.toStringAsFixed(2),
+                                      title: it.title,
+                                      removeTransaction: () =>
+                                          _removeTransaction(it.id),
+                                      date: DateFormat("d MMM y")
+                                          .format(it.date));
+                                }),
                           ),
-                        )
-                      ],
-                    )
-                  : ListView.builder(
-                      itemCount: _transactions.length,
-                      itemBuilder: (ctx, index) {
-                        final it = _transactions[index];
-                        return CardTransactions(
-                            value: it.value.toStringAsFixed(2),
-                            title: it.title,
-                            date: DateFormat("d MMM y").format(it.date));
-                      }),
-            ),
+                  ),
           ],
         ),
       ),

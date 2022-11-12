@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:expenses/components/card-graphic-bar.dart';
 import 'package:intl/intl.dart';
 import "../models/transaction.dart";
@@ -38,7 +40,7 @@ class CardGraphic extends StatelessWidget {
     }).reversed.toList();
   }
 
-  double get _wekTotalValue {
+  get _wekTotalValue {
     //fold e identico ao reduce
     return groupTransactions.fold(
         0.0, (previousValue, it) => previousValue + (it["value"] as double));

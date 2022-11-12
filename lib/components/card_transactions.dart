@@ -5,13 +5,14 @@ class CardTransactions extends StatelessWidget {
   final String value;
   final String title;
   final String date;
+  final void Function() removeTransaction;
 
-  const CardTransactions({
-    super.key,
-    required this.value,
-    required this.title,
-    required this.date,
-  });
+  const CardTransactions(
+      {super.key,
+      required this.value,
+      required this.title,
+      required this.date,
+      required this.removeTransaction});
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +40,14 @@ class CardTransactions extends StatelessWidget {
         ),
         title: Text(title),
         subtitle: Text(date),
+        trailing: IconButton(
+          onPressed: () => removeTransaction(),
+          icon: Icon(
+            Icons.delete_forever,
+            size: 25,
+            color: Theme.of(context).errorColor,
+          ),
+        ),
       ),
     );
   }
