@@ -1,5 +1,7 @@
+import 'package:expenses/components/adaptative_button.dart';
+import 'package:expenses/components/adaptative_textField.dart';
+import 'package:expenses/components/adptative_datePicker.dart';
 import "package:flutter/material.dart";
-import 'package:intl/intl.dart';
 
 //quadno o text field nao conseguir persistir o formulario quando inserido o valor
 //e porque precisa ser um tipo statefull
@@ -23,19 +25,9 @@ class _TransactionsFormState extends State<TransactionsForm> {
   final valueController = TextEditingController();
   DateTime? dateSelected = DateTime.now();
 
-  _showDatePicker() {
-    //dentro de state recebo o contexto por herenaca
-    showDatePicker(
-            context: context,
-            initialDate: DateTime.now(),
-            firstDate: DateTime(2020),
-            lastDate: DateTime.now())
-        .then((datePicker) {
-      if (datePicker != null) {
-        setState(() {
-          dateSelected = datePicker;
-        });
-      }
+  handleDatePicker(DateTime date) {
+    setState(() {
+      dateSelected = date;
     });
   }
 
@@ -44,59 +36,38 @@ class _TransactionsFormState extends State<TransactionsForm> {
     return Card(
       child: Column(
         children: [
-          TextField(
-            controller: titleController,
-            //o widget tera acesso a todos parametros recebidos nessa classe
-            onSubmitted: (_) => widget.handleSubmit(
+          AdpatativeTextField(
+            controllerType: titleController,
+            textPlaceHolder: "Title",
+            submiTed: (_) => widget.handleSubmit(
                 title: titleController.text,
                 value: valueController.text,
                 dateTime: dateSelected),
-            decoration: const InputDecoration(labelText: "Title"),
           ),
-          TextField(
-            controller: valueController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            onSubmitted: (_) => widget.handleSubmit(
+          const SizedBox(
+            height: 10,
+          ),
+          AdpatativeTextField(
+            textPlaceHolder: "Value (R\$)",
+            controllerType: valueController,
+            submiTed: (_) => widget.handleSubmit(
                 title: titleController.text,
                 value: valueController.text,
                 dateTime: dateSelected),
-            decoration: const InputDecoration(
-              labelText: "Value (R\$)",
-            ),
           ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 7),
-            child: Row(
-              children: [
-                //com expanded empurro ate o final o choose date
-                Expanded(
-                  child: Text(dateSelected == null
-                      ? "Not date selected"
-                      : "Date: ${DateFormat("dd/MM/yy").format(dateSelected!)}"),
-                ),
-                TextButton(
-                  onPressed: _showDatePicker,
-                  child: const Text("Choose Date",
-                      style: TextStyle(color: Colors.purple, fontSize: 17)),
-                )
-              ],
-            ),
-          ),
+          AdaptativeDatePicker(
+              dateSelected: dateSelected!,
+              onChangeDate: (date) => handleDatePicker(date)),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.purple)),
-                  onPressed: () => widget.handleSubmit(
-                      title: titleController.text,
-                      value: valueController.text,
-                      dateTime: dateSelected),
-                  child: const Text(
-                    "New transactions",
-                    style: TextStyle(color: Colors.white),
-                  ))
+              AdaptativeButton(
+                text: "New transctions",
+                pressed: () => widget.handleSubmit(
+                    title: titleController.text,
+                    value: valueController.text,
+                    dateTime: dateSelected),
+              )
             ],
           )
         ],

@@ -1,6 +1,8 @@
-import 'package:expenses/components/card-graphic.dart';
-import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:io';
+import 'package:expenses/components/card-graphic.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import "package:intl/intl.dart";
 import "../models/transaction.dart";
 import '../components/card_transactions.dart';
@@ -15,6 +17,7 @@ class ExpensesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //serve tanto no cupertino quanto material dart
     return MaterialApp(
       home: const HomeScreen(),
       //theme
@@ -112,108 +115,143 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final appBar = AppBar(
-      title: const Text("Personal expenses"),
-      actions: [
-        Row(
-          children: [
-            Text(showGraphic ? "Grapich" : "List"),
-            Switch(
-              value: showGraphic,
-              onChanged: _renderGraphicOrList,
-            ),
-          ],
-        ),
-        IconButton(
-            onPressed: () => _handleOpenModal(context),
-            icon: const Icon(
-              Icons.add,
-              size: 20,
-            ))
-      ],
-    );
+    Widget getIconButton(IconData icon, void Function() press) {
+      return Platform.isIOS
+          ? Row(children: [
+              Text(showGraphic ? "List" : "Graphic"),
+              //swtich.adpative vai mudar conforme a plataforma
+              Switch.adaptive(
+                activeColor: Theme.of(context).colorScheme.secondary,
+                value: showGraphic,
+                onChanged: _renderGraphicOrList,
+              ),
+              GestureDetector(
+                onTap: press,
+                child: Icon(icon, size: 20),
+              ),
+            ])
+          : Row(children: [
+              Text(showGraphic ? "List" : "Graphic"),
+              //swtich.adpative vai mudar conforme a plataforma
+              Switch.adaptive(
+                activeColor: Theme.of(context).colorScheme.secondary,
+                value: showGraphic,
+                onChanged: _renderGraphicOrList,
+              ),
+              IconButton(onPressed: press, icon: Icon(icon, size: 20)),
+            ]);
+    }
+
+    //app bar
 
     //altura disponivel total  - padding acima que o status bar - tamanho do app bar
-    final avaibleHeigth = MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        appBar.preferredSize.height;
+    final avaibleHeigth =
+        MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
 
-    return Scaffold(
-      appBar: appBar,
-      //este compoenente se estiver fora do Scaffold ira precisar de uma altera definada
-      //se nao ira acusar overflow
+    //COMPONENTE  principal abaixo do app bar
+    final contentMain = SafeArea(
+        child: SingleChildScrollView(
+      child: Column(
+        //mesmo conceito do flex box
+        //se estamos no eixo de column entao o cross eixo alinha horizontal
+        //e o mainAxis alinha em coluna
+        //os comportamentos sao identicos ao flex box, exemplo stretch vai espichar
+        // ao maximo o filho
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          showGraphic
+              ? SizedBox(
+                  width: double.infinity,
+                  child: SizedBox(
+                      height: avaibleHeigth * 0.25,
+                      child: CardGraphic(_recentTransactions)),
+                )
+              : SizedBox(
+                  //repara que o ternario fica apos o child pois ele espera um filho
+                  //nao dentro do list view,pois list view ira usar o transactions
+                  child: _transactions.isEmpty
+                      ? Column(
+                          children: [
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            Text(
+                              "Nenhuma transação até o momento",
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            SizedBox(
+                              height: 200,
+                              child: //o contain precisa saber o tamanho do container
+                                  //se a imagem for maior que o container pai ir gerar overlow
+                                  Image.asset(
+                                "assets/images/waiting.png",
+                                fit: BoxFit.contain,
+                              ),
+                            )
+                          ],
+                        )
+                      : SizedBox(
+                          height: avaibleHeigth * 0.75,
+                          child: ListView.builder(
+                              itemCount: _transactions.length,
+                              itemBuilder: (ctx, index) {
+                                final it = _transactions[index];
+                                return CardTransactions(
+                                    value: it.value.toStringAsFixed(2),
+                                    title: it.title,
+                                    removeTransaction: () =>
+                                        _removeTransaction(it.id),
+                                    date:
+                                        DateFormat("d MMM y").format(it.date));
+                              }),
+                        ),
+                ),
+        ],
+      ),
+    ));
 
-      //agora minha screen tem capacidade de fazer um scrooll
-      body: SingleChildScrollView(
-        child: Column(
-          //mesmo conceito do flex box
-          //se estamos no eixo de column entao o cross eixo alinha horizontal
-          //e o mainAxis alinha em coluna
-          //os comportamentos sao identicos ao flex box, exemplo stretch vai espichar
-          // ao maximo o filho
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            showGraphic
-                ? SizedBox(
-                    width: double.infinity,
-                    child: SizedBox(
-                        height: avaibleHeigth * 0.25,
-                        child: CardGraphic(_recentTransactions)),
-                  )
-                : SizedBox(
-                    //repara que o ternario fica apos o child pois ele espera um filho
-                    //nao dentro do list view,pois list view ira usar o transactions
-                    child: _transactions.isEmpty
-                        ? Column(
-                            children: [
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              Text(
-                                "Nenhuma transação até o momento",
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              SizedBox(
-                                height: 220,
-                                child: //o contain precisa saber o tamanho do container
-                                    //se a imagem for maior que o container pai ir gerar overlow
-                                    Image.asset(
-                                  "assets/images/waiting.png",
-                                  fit: BoxFit.contain,
-                                ),
-                              )
-                            ],
-                          )
-                        : SizedBox(
-                            height: avaibleHeigth * 0.75,
-                            child: ListView.builder(
-                                itemCount: _transactions.length,
-                                itemBuilder: (ctx, index) {
-                                  final it = _transactions[index];
-                                  return CardTransactions(
-                                      value: it.value.toStringAsFixed(2),
-                                      title: it.title,
-                                      removeTransaction: () =>
-                                          _removeTransaction(it.id),
-                                      date: DateFormat("d MMM y")
-                                          .format(it.date));
-                                }),
-                          ),
+    //arvore principal
+    return Platform.isIOS
+        //scaffold para cupertino
+        ? CupertinoPageScaffold(
+            navigationBar: CupertinoNavigationBar(
+              leading: Container(
+                alignment: Alignment.bottomCenter,
+                margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 13),
+                child: const Text(
+                  "Personal expenses",
+                  style: TextStyle(
+                    fontSize: 14,
                   ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _handleOpenModal(context),
-        child: const Icon(
-          Icons.add,
-          size: 35,
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
+                ),
+              ),
+              trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                getIconButton(Icons.add, () => _handleOpenModal(context))
+              ]),
+            ),
+            child: contentMain,
+          )
+        //scaffold para material dart
+        : Scaffold(
+            appBar: AppBar(
+              title: const Text("Personal expenses"),
+              actions: [
+                getIconButton(Icons.add, () => _handleOpenModal(context))
+              ],
+            ),
+            body: contentMain,
+            floatingActionButton: FloatingActionButton(
+              onPressed: () => _handleOpenModal(context),
+              child: const Icon(
+                Icons.add,
+                size: 35,
+              ),
+            ),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+          );
   }
 }
